@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/com.link_intersystems.eclipse.tools.cron_expression.feature_0.0.1.qualifier.jar" id="com.link_intersystems.eclipse.tools.cron_expression.feature" version="0.0.1.qualifier"/>
+   <feature url="features/com.link_intersystems.eclipse.tools.cron_expression.feature_0.0.1.qualifier.jar" id="com.link_intersystems.eclipse.tools.cron_expression.feature" version="0.0.1.qualifier">
+      <category name="com.link_intersystems.eclipse.development_tools"/>
+   </feature>
+   <category-def name="com.link_intersystems.eclipse.development_tools" label="Development Tools">
+      <description>
+         Contains plugins useful for software development.
+      </description>
+   </category-def>
 </site>
