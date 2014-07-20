@@ -5,8 +5,9 @@ import java.text.ParseException;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
-import org.eclipse.swt.widgets.Text;
 import org.quartz.CronExpression;
+
+import com.link_intersystems.eclipse.swt.events.VerifyResultText;
 
 class CronExpressionVerifier implements VerifyListener {
 
@@ -21,14 +22,7 @@ class CronExpressionVerifier implements VerifyListener {
 	}
 
 	public void verifyText(VerifyEvent e) {
-		Object source = e.getSource();
-		Text text = (Text) source;
-		String oldText = text.getText();
-		String leftText = oldText.substring(0, e.start);
-		String insertText = e.text;
-		String rightText = oldText.substring(e.end, oldText.length());
-		String verifyText = leftText + insertText + rightText;
-		verifyText = verifyText.trim();
+		String verifyText = new VerifyResultText(e).toString();
 		if (verifyText.length() == 0) {
 			setVerifyMessage(null);
 			return;

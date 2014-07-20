@@ -9,7 +9,6 @@ import org.quartz.CronExpression;
 
 public class ExpressionEvaluationAction extends Action {
 
-	private Date startAt = new Date();
 	private CronExpressionInputModel cronExpressionInputModel;
 	private CronExpressionResultModel cronExpressionResultModel;
 
@@ -20,10 +19,6 @@ public class ExpressionEvaluationAction extends Action {
 		this.cronExpressionResultModel = cronExpressionResultModel;
 	}
 
-	public void setStartDate(Date startDate) {
-		this.startAt = (Date) startDate.clone();
-	}
-
 	@Override
 	public void run() {
 		CronExpression cronExpressionObj = cronExpressionInputModel
@@ -32,11 +27,14 @@ public class ExpressionEvaluationAction extends Action {
 			return;
 		}
 		List<Date> nextFireDates = new ArrayList<Date>();
-		Date startAt = this.startAt;
+		Date startAt = cronExpressionInputModel.getStartDate().getTime();
 		int nextFireTimesCount = cronExpressionInputModel.getMaxNextFireTimes();
 		for (int i = 0; i < nextFireTimesCount; i++) {
 			Date nextValidTimeAfter = cronExpressionObj
 					.getNextValidTimeAfter(startAt);
+			if(nextValidTimeAfter == null){
+				break;
+			}
 			nextFireDates.add(nextValidTimeAfter);
 			startAt = nextValidTimeAfter;
 		}

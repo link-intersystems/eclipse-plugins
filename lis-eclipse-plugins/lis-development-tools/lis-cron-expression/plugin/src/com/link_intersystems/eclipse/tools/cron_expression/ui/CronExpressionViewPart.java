@@ -8,16 +8,22 @@ import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.action.ActionContributionItem;
+import org.eclipse.jface.bindings.keys.KeyStroke;
+import org.eclipse.jface.bindings.keys.ParseException;
 import org.eclipse.jface.databinding.swt.ISWTObservableValue;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
+import org.eclipse.jface.fieldassist.ContentProposalAdapter;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
+import org.eclipse.jface.fieldassist.IContentProposalProvider;
+import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -30,6 +36,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.part.ViewPart;
+
+import com.link_intersystems.eclipse.swt.DatePicker;
 
 public class CronExpressionViewPart extends ViewPart {
 	public CronExpressionViewPart() {
@@ -60,6 +68,21 @@ public class CronExpressionViewPart extends ViewPart {
 		label.setText("Cron Expression:");
 
 		Text cronExpressionText = new Text(formBody, SWT.BORDER);
+		try {
+			KeyStroke keyStroke = KeyStroke.getInstance("Ctrl"
+					+ KeyStroke.KEY_DELIMITER + "Space");
+			IContentProposalProvider proposalProvider = new CronExpressionProposalProvider();
+			String autoActivationCharacters = "";
+			ContentProposalAdapter contentProposalAdapter = new ContentProposalAdapter(
+					cronExpressionText, new TextContentAdapter(),
+					proposalProvider, keyStroke,
+					autoActivationCharacters.toCharArray());
+			contentProposalAdapter.setPopupSize(new Point(200, 150));
+			contentProposalAdapter.setPropagateKeys(true);
+			contentProposalAdapter
+					.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
+		} catch (ParseException e) {
+		}
 
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		cronExpressionText.setLayoutData(gd);
@@ -94,6 +117,14 @@ public class CronExpressionViewPart extends ViewPart {
 		toolkit.adapt(spinner);
 		toolkit.paintBordersFor(spinner);
 		new Label(form.getBody(), SWT.NONE);
+
+		toolkit.createLabel(formBody, "Start date");
+
+		DatePicker startDateTextField = new DatePicker(formBody, SWT.NONE);
+		new Label(form.getBody(), SWT.NONE);
+		
+		toolkit.createLabel(formBody, "Next fire times");
+		new Label(form.getBody(), SWT.NONE);
 		new Label(form.getBody(), SWT.NONE);
 
 		Composite composite = new Composite(formBody, SWT.NONE);
@@ -107,9 +138,9 @@ public class CronExpressionViewPart extends ViewPart {
 		IStructuredContentProvider contentProvider = new ArrayContentProvider();
 		resultListViewer.setContentProvider(contentProvider);
 
-		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
-				DateFormat.MEDIUM, Locale.getDefault());
-		DateFormatLabelProvider lp = new DateFormatLabelProvider(df);
+		DateFormat dateTimeFormat = DateFormat.getDateTimeInstance(
+				DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.getDefault());
+		DateFormatLabelProvider lp = new DateFormatLabelProvider(dateTimeFormat);
 		resultListViewer.setLabelProvider(lp);
 
 		List list = resultListViewer.getList();
@@ -121,12 +152,31 @@ public class CronExpressionViewPart extends ViewPart {
 				.addSelectionListener(runActionDefaultSelectionAdapter);
 
 		DataBindingContext bindingContext = new DataBindingContext();
-		IObservableValue viewerInput = ViewersObservables
-				.observeInput(resultListViewer);
-		IObservableValue result = BeansObservables.observeValue(
-				cronExpressionResultModel, "nextFireTimes");
-		bindingContext.bindValue(viewerInput, result);
 
+		bindNextFireTimes(bindingContext, cronExpressionResultModel,
+				resultListViewer);
+
+		bindMaxFireTimes(bindingContext, cronExpressionInputModel, spinner);
+
+		bindStartDate(bindingContext, cronExpressionInputModel,
+				startDateTextField);
+
+	}
+
+	private void bindStartDate(DataBindingContext bindingContext,
+			CronExpressionInputModel cronExpressionInputModel,
+			DatePicker startDateTextField) {
+		IObservableValue startDateTextFieldValue = BeansObservables
+				.observeValue(startDateTextField, "date");
+
+		IObservableValue startDateModelValue = BeansObservables.observeValue(
+				cronExpressionInputModel, "startDate");
+
+		bindingContext.bindValue(startDateTextFieldValue, startDateModelValue);
+	}
+
+	private void bindMaxFireTimes(DataBindingContext bindingContext,
+			CronExpressionInputModel cronExpressionInputModel, Spinner spinner) {
 		ISWTObservableValue maxNextFireCount = SWTObservables
 				.observeSelection(spinner);
 		IObservableValue observeValue = BeansObservables.observeValue(
@@ -134,7 +184,16 @@ public class CronExpressionViewPart extends ViewPart {
 		UpdateValueStrategy updateValueStrategy = new UpdateValueStrategy();
 		bindingContext.bindValue(maxNextFireCount, observeValue,
 				updateValueStrategy, updateValueStrategy);
+	}
 
+	private void bindNextFireTimes(DataBindingContext bindingContext,
+			CronExpressionResultModel cronExpressionResultModel,
+			ListViewer resultListViewer) {
+		IObservableValue viewerInput = ViewersObservables
+				.observeInput(resultListViewer);
+		IObservableValue result = BeansObservables.observeValue(
+				cronExpressionResultModel, "nextFireTimes");
+		bindingContext.bindValue(viewerInput, result);
 	}
 
 	/**
