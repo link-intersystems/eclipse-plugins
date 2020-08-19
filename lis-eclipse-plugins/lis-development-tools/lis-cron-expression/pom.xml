@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.link_intersystems.eclipse</groupId>
 		<artifactId>lis-development-tools</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>lis-cron-expression</artifactId>
 	<name>Cron Expression</name>
@@ -13,7 +13,7 @@
 	<properties>
 		<project.lis-eclipse-plugins.basedir>../../</project.lis-eclipse-plugins.basedir>
 	</properties>
-	
+
 	<modules>
 		<module>feature</module>
 		<module>plugin</module>

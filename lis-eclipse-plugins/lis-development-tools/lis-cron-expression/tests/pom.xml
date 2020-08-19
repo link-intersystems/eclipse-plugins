@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.link_intersystems.eclipse</groupId>
 		<artifactId>lis-cron-expression</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>com.link_intersystems.eclipse.tools.cron_expression.plugin.tests</artifactId>
 	<name>Cron Expression Tests</name>

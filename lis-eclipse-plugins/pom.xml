@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.link_intersystems.eclipse</groupId>
 	<artifactId>lis-eclipse-plugins</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<name>Eclipse Plugins</name>
 	<packaging>pom</packaging>
 
